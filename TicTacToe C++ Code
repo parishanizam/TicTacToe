@@ -1,0 +1,202 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+const int ROWS = 3, COLUMNS = 3;
+
+void introAndRules();
+
+void drawBoard(const vector<vector<char>>& board);
+
+void game(char player, vector<vector<char>> board);
+
+void playerTurn(char player, vector<vector<char>>& board);
+
+char getMove();
+
+bool validMove(char move, const vector<vector<char>>& board);
+
+void updateBoard(char player, char move, vector<vector<char>>& board);
+
+char gameStatus(char player, const vector<vector<char>>& board);
+
+int main()
+{
+	// Setup:
+
+	vector<vector<char>> board = 
+	{
+		{'1', '2', '3'},
+		{'4', '5', '6'},
+		{'7', '8', '9'}
+	};
+
+	char player = ' ';
+	char again;
+
+	introAndRules();
+
+	drawBoard(board);
+
+	// Game Loop:
+
+	do
+	{
+		game(player, board); 
+		cout << "Would you like to play again? (y/n): ";
+		cin >> again;
+		cout << "\n";
+	} while (again == 'y');
+
+	cout << "Game Over!\n";
+
+	return 0;
+}
+
+inline void introAndRules()
+{
+	cout << "\t\tTIC-TAC-TOE\n\n";
+	cout << "How to play TIC-TAC-TOE:\n\n";
+	cout << "There will be 2 players: \nThe 1st player will play with the letter 'X'.\nThe 2nd player will play with the letter 'O'.\n\n";
+	cout << "Your Goal:\nGet 3 of your letters in a row (up, down, across, or diagonally) to win!\nMake sure to block your opponent's letters to stop them from wining!\n\n";
+	cout << "Instructions:\nInput where you'd like to place your character from numbers 1-9.\n\n";
+}
+
+void drawBoard(const vector<vector<char>>& board)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		cout << "\t\t";
+
+		for (int j = 0; j < 3; ++j)
+		{
+			if (j != 2) cout << " " << board[i][j] << " |";
+			else cout << " " << board[i][j] << " ";
+		}
+
+		if (i != 2) cout << "\n\t\t--- --- ---\n";
+		else cout << "\n\n";
+	}
+}
+
+void game(char player, vector<vector<char>> board)
+{   
+	int moves = 0;
+	while (true)
+	{
+		player = 'X';
+		cout << "Player: " << player << ", it's your turn.\n";
+		playerTurn(player, board);
+		++moves;
+
+		if (moves == 9)
+		{
+			cout << "Tied!\n\n";
+			break;
+		}
+
+		drawBoard(board);
+
+		if (gameStatus(player, board) == player)
+		{
+			cout << "Player 'X' won!\n\n";
+			break;
+		}
+
+		player = 'O';
+		cout << "Player: " << player << ", it's your turn.\n";
+		playerTurn(player, board);
+		++moves;
+
+		if (moves == 9)
+		{
+			cout << "Tied!\n\n";
+			break;
+		}
+
+		drawBoard(board);
+
+		if (gameStatus(player, board) == player)
+		{
+			cout << "Player 'O' won!\n\n";
+			break;
+		}
+	}
+}
+
+void playerTurn(char player, vector<vector<char>>& board)
+{
+	char move;
+
+	while (true)
+	{
+		move = getMove();
+		if (validMove(move, board)) break;
+	}
+
+	updateBoard(player, move, board);
+}
+
+char getMove()
+{
+	char move;
+	do
+	{
+		cout << "Please enter your move (1-9): ";
+		cin >> move;
+
+	} while (!isdigit(move) || move == '0');
+
+	cout << "\n";
+
+	return move;
+}
+
+bool validMove(char move, const vector<vector<char>>& board)
+{
+	for (vector<vector<char>>::const_iterator i = board.begin(); i != board.end(); ++i)
+	{
+		for (vector<char>::const_iterator j = i->begin(); j != i->end(); ++j)
+			if (*j == move) return true;
+	}
+
+	return false;
+}
+
+void updateBoard(char player, char move, vector<vector<char>>& board)
+{
+	for (vector<vector<char>>::iterator i = board.begin(); i != board.end(); ++i)
+	{
+		for (vector<char>::iterator j = i->begin(); j != i->end(); ++j)
+		{
+			if (*j == move) *j = player;
+		}
+	}
+}
+
+char gameStatus(char player, const vector<vector<char>>& board)
+{
+	// Verticals
+	for (int i = 0; i < 3; ++i)
+	{
+		if (board[0][i] == player && board[1][i] == player && board[2][i] == player)
+			return player;
+	}
+
+	// Horizontals
+	for (int i = 0; i < 3; ++i)
+	{
+		if (board[i][0] == player && board[i][1] == player && board[i][2] == player)
+			return player;
+	}
+
+	// Diagonals
+	if (board[0][0] == player && board[1][1] == player && board[2][2] == player)
+		return player;
+	if (board[0][2] == player && board[1][1] == player && board[2][0] == player)
+		return player;
+
+	return ' ';
+}
